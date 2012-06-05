@@ -1,51 +1,45 @@
-(* fun resolveExpressao(exp1, operador, exp2) = resolveExpressaoAritimetica(exp1, operador, exp2); *)
+datatype valor = ValorBooleano of bool
+  | ValorInteiro of int;
 
-(* datatype expressaoAritimetica = x of int | y of expressaoAritimetica * string * expressaoAritimetica; *)
+datatype expressao = Valor of valor
+  | ExpBinaria of expressao * string * expressao;
 
-(* (case (1,2,3) of tuple => true) *)
-(*val x = 1;
-(case x 
-    of 1 => "nao string"
-     | 2 => "string"
-);*)
-
-
-(*fun avaliaExpressaoAritimetica() = 
-    (case e of int => e);
-    *)
-
-datatype expressaoAritm = ValorInteiro of int
-  | ExpAritm of expressaoAritm * string * expressaoAritm;
+exception Indefinido;
+(*| valor funcao? *)
   
+fun SOMA(Valor(ValorInteiro(x)), Valor(ValorInteiro(y))) = Valor(ValorInteiro(x+y))
+  | SOMA(_, _) = raise Indefinido;
+
+fun SUBTRAI(Valor(ValorInteiro(x)), Valor(ValorInteiro(y))) = Valor(ValorInteiro(x-y))
+  | SUBTRAI(_, _) = raise Indefinido;
   
-datatype expressaoBool = ValorBooleano of bool
-  | ExpBool of expressaoBool * string * expressaoBool;
-
+fun AND(Valor(ValorBooleano(x)), Valor(ValorBooleano(y))) = Valor(ValorBooleano(x andalso y))
+  | AND(_, _) = raise Indefinido;
   
-fun avaliaExpAritm(ValorInteiro(v)) = v
-  | avaliaExpAritm(ExpAritm(x, "+", y)) = avaliaExpAritm(x) + avaliaExpAritm(y)
-  | avaliaExpAritm(ExpAritm(x, "-", y)) = avaliaExpAritm(x) - avaliaExpAritm(y);
+fun OR(Valor(ValorBooleano(x)), Valor(ValorBooleano(y))) = Valor(ValorBooleano(x orelse y))
+  | OR(_, _) = raise Indefinido;
+
+fun IGUAL(Valor(ValorBooleano(x)), Valor(ValorBooleano(y))) = Valor(ValorBooleano(x = y))
+  | IGUAL(Valor(ValorInteiro(x)), Valor(ValorInteiro(y))) = Valor(ValorBooleano(x = y))
+  | IGUAL(_, _) = raise Indefinido;
   
-  
-fun avaliaExpBool(ValorBooleano(b)) = b
-  | avaliaExpBool(ExpBool(b, "And", y)) = avaliaExpBool(b) andalso avaliaExpBool(y)
-  | avaliaExpBool(ExpBool(b, "Or", y)) = avaliaExpBool(b) orelse avaliaExpBool(y);
+fun avaliaExp(Valor(ValorInteiro(v))) = Valor(ValorInteiro(v))
+  | avaliaExp(ExpBinaria(x, "+", y)) = SOMA(avaliaExp(x), avaliaExp(y))
+  | avaliaExp(ExpBinaria(x, "-", y)) = SUBTRAI(avaliaExp(x), avaliaExp(y))
+  | avaliaExp(Valor(ValorBooleano(b))) = Valor(ValorBooleano(b))
+  | avaliaExp(ExpBinaria(x, "And", y)) = AND(avaliaExp(x), avaliaExp(y))
+  | avaliaExp(ExpBinaria(x, "Or", y)) = OR(avaliaExp(x), avaliaExp(y))
+  | avaliaExp(ExpBinaria(x, "==", y)) = IGUAL(avaliaExp(x), avaliaExp(y))
+  | avaliaExp(_) = raise Indefinido;
+    
+avaliaExp(ExpBinaria(Valor(ValorInteiro(1)), "+", Valor(ValorInteiro(2)))) = Valor(ValorInteiro(3));
+avaliaExp(ExpBinaria(Valor(ValorInteiro(1)), "-", Valor(ValorInteiro(2)))) = Valor(ValorInteiro(~1));
+avaliaExp(ExpBinaria(ExpBinaria(Valor(ValorInteiro(1)), "-", Valor(ValorInteiro(2))), "+", Valor(ValorInteiro(3)))) = Valor(ValorInteiro(2));
 
-
-avaliaExpBool(ValorBooleano(true)) = true;
-avaliaExpBool(ValorBooleano(false)) = false;
-avaliaExpBool(ExpBool(ValorBooleano(false), "And", ValorBooleano(true))) = false;
-avaliaExpBool(ExpBool(ValorBooleano(true), "And", ValorBooleano(true))) = true;
-avaliaExpBool(ExpBool(ValorBooleano(false), "And", ValorBooleano(false))) = false;
-
-avaliaExpBool(ExpBool(ValorBooleano(false), "Or", ValorBooleano(false))) = false;
-avaliaExpBool(ExpBool(ValorBooleano(true), "Or", ValorBooleano(false))) = true;
-avaliaExpBool(ExpBool(ValorBooleano(true), "Or", ValorBooleano(true))) = true;
-
-avaliaExpAritm(ExpAritm(ValorInteiro(1), "+", ValorInteiro(2))) = 3;
-
-avaliaExpAritm(ExpAritm(ExpAritm(ValorInteiro(1), "+", ValorInteiro(2)), "-", ValorInteiro(10))) = ~7;
-
-
-
-
+avaliaExp(ExpBinaria(Valor(ValorBooleano(true)), "And", Valor(ValorBooleano(true)))) = Valor(ValorBooleano(true));
+avaliaExp(ExpBinaria(Valor(ValorBooleano(false)), "And", Valor(ValorBooleano(true)))) = Valor(ValorBooleano(false));
+avaliaExp(ExpBinaria(Valor(ValorBooleano(false)), "Or", Valor(ValorBooleano(true)))) = Valor(ValorBooleano(true));
+avaliaExp(ExpBinaria(Valor(ValorBooleano(false)), "Or", Valor(ValorBooleano(false)))) = Valor(ValorBooleano(false));
+avaliaExp(ExpBinaria(Valor(ValorBooleano(false)), "==", Valor(ValorBooleano(false)))) = Valor(ValorBooleano(true));
+avaliaExp(ExpBinaria(Valor(ValorInteiro(2)), "==", Valor(ValorInteiro(2)))) = Valor(ValorBooleano(true));
+avaliaExp(ExpBinaria(Valor(ValorInteiro(2)), "==", Valor(ValorInteiro(3)))) = Valor(ValorBooleano(false));
