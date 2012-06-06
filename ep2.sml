@@ -30,32 +30,92 @@ fun avaliaExp(Valor(ValorInteiro(v))) = Valor(ValorInteiro(v))
   | avaliaExp(ExpBinaria(x, "And", y)) = AND(avaliaExp(x), avaliaExp(y))
   | avaliaExp(ExpBinaria(x, "Or", y)) = OR(avaliaExp(x), avaliaExp(y))
   | avaliaExp(ExpBinaria(x, "==", y)) = IGUAL(avaliaExp(x), avaliaExp(y))
-  | avaliaExp(IfThenElse("if", expBool, Valor(x), Valor(y))) = if (avaliaExp(expBool) = Valor(ValorBooleano(true))) then avaliaExp(Valor(x))
-                                                                                                                    else avaliaExp(Valor(y))
-  | avaliaExp(IfThenElse("if", expBool, ExpBinaria(x1, s1, y1), ExpBinaria(x2, s2, y2))) = if (avaliaExp(expBool) = Valor(ValorBooleano(true))) then avaliaExp(ExpBinaria(x1, s1, y1))
-                                                                                                                    else avaliaExp(ExpBinaria(x2, s2, y2))
+  | avaliaExp(IfThenElse("if", expBool, Valor(x), Valor(y))) = 
+        if (avaliaExp(expBool) = Valor(ValorBooleano(true))) then avaliaExp(Valor(x))
+                                                             else avaliaExp(Valor(y))
+  | avaliaExp(IfThenElse("if", expBool, ExpBinaria(x1, s1, y1), ExpBinaria(x2, s2, y2))) = 
+        if (avaliaExp(expBool) = Valor(ValorBooleano(true))) then avaliaExp(ExpBinaria(x1, s1, y1))
+                                                             else avaliaExp(ExpBinaria(x2, s2, y2))
+  | avaliaExp(IfThenElse("if", expBool, Valor(x), ExpBinaria(x2, s2, y2))) = 
+        if (avaliaExp(expBool) = Valor(ValorBooleano(true))) then avaliaExp(Valor(x))
+                                                             else avaliaExp(ExpBinaria(x2, s2, y2))
+  | avaliaExp(IfThenElse("if", expBool, ExpBinaria(x2, s2, y2), Valor(x))) = 
+        if (avaliaExp(expBool) = Valor(ValorBooleano(true))) then avaliaExp(ExpBinaria(x2, s2, y2))
+                                                             else avaliaExp(Valor(x))
   | avaliaExp(_) = raise Indefinido;
-    
-avaliaExp(ExpBinaria(Valor(ValorInteiro(1)), "+", Valor(ValorInteiro(2)))) = Valor(ValorInteiro(3));
-avaliaExp(ExpBinaria(Valor(ValorInteiro(1)), "-", Valor(ValorInteiro(2)))) = Valor(ValorInteiro(~1));
-avaliaExp(ExpBinaria(ExpBinaria(Valor(ValorInteiro(1)), "-", Valor(ValorInteiro(2))), "+", Valor(ValorInteiro(3)))) = Valor(ValorInteiro(2));
+      
+  
+(* Testes para a funcao avaliaExp todos eles devem retornar true *)
+(* 2 + 1 = 3 *)
+avaliaExp(ExpBinaria(Valor(ValorInteiro(1)), "+", Valor(ValorInteiro(2)))) = Valor(ValorInteiro(3)); 
 
+(* 1 - 2 = -1 *)
+avaliaExp(ExpBinaria(Valor(ValorInteiro(1)), "-", Valor(ValorInteiro(2)))) = Valor(ValorInteiro(~1)); 
+
+(* (1 - 2) + 3 = 2 *)
+avaliaExp(
+    ExpBinaria(
+        ExpBinaria(Valor(ValorInteiro(1)), "-", Valor(ValorInteiro(2))), 
+        "+", Valor(ValorInteiro(3))
+    )
+) = Valor(ValorInteiro(2)); 
+
+(* true && true = true *)
 avaliaExp(ExpBinaria(Valor(ValorBooleano(true)), "And", Valor(ValorBooleano(true)))) = Valor(ValorBooleano(true));
+
+(* false && true = false *)
 avaliaExp(ExpBinaria(Valor(ValorBooleano(false)), "And", Valor(ValorBooleano(true)))) = Valor(ValorBooleano(false));
+
+(* false || true = true *)
 avaliaExp(ExpBinaria(Valor(ValorBooleano(false)), "Or", Valor(ValorBooleano(true)))) = Valor(ValorBooleano(true));
+
+(* false || false = false *)
 avaliaExp(ExpBinaria(Valor(ValorBooleano(false)), "Or", Valor(ValorBooleano(false)))) = Valor(ValorBooleano(false));
+
+(* false == false = true *)
 avaliaExp(ExpBinaria(Valor(ValorBooleano(false)), "==", Valor(ValorBooleano(false)))) = Valor(ValorBooleano(true));
+
+(* 2 == 2 = true *)
 avaliaExp(ExpBinaria(Valor(ValorInteiro(2)), "==", Valor(ValorInteiro(2)))) = Valor(ValorBooleano(true));
+
+(* 2 == 3 = false *)
 avaliaExp(ExpBinaria(Valor(ValorInteiro(2)), "==", Valor(ValorInteiro(3)))) = Valor(ValorBooleano(false));
 
+(* if (false) 1 else 2  retorna 2 *)
 avaliaExp(IfThenElse("if", Valor(ValorBooleano(false)), Valor(ValorInteiro(1)), Valor(ValorInteiro(2)))) = Valor(ValorInteiro(2));
+
+(* if (true) 1 else 2  retorna 1 *)
 avaliaExp(IfThenElse("if", Valor(ValorBooleano(true)), Valor(ValorInteiro(1)), Valor(ValorInteiro(2)))) = Valor(ValorInteiro(1));
+
+(* if (false || false) 1+10 else 1+2  retorna 3 *)
 avaliaExp(
     IfThenElse("if", ExpBinaria(Valor(ValorBooleano(false)), "Or", Valor(ValorBooleano(false))), 
         ExpBinaria(Valor(ValorInteiro(1)), "+", Valor(ValorInteiro(10))), 
         ExpBinaria(Valor(ValorInteiro(1)), "+", Valor(ValorInteiro(2)))
     )
-)
-= Valor(ValorInteiro(3));
-        
-avaliaExp(IfThenElse("if", ExpBinaria(Valor(ValorBooleano(true)), "Or", Valor(ValorBooleano(false))), Valor(ValorInteiro(1)), Valor(ValorInteiro(2)))) = Valor(ValorInteiro(1));
+)= Valor(ValorInteiro(3));
+
+(* if (true || false) 1 else 2  retorna 1 *)        
+avaliaExp(
+    IfThenElse("if", ExpBinaria(Valor(ValorBooleano(true)), "Or", Valor(ValorBooleano(false))),
+        Valor(ValorInteiro(1)),
+        Valor(ValorInteiro(2))
+    )
+) = Valor(ValorInteiro(1));
+
+(* if (true || false) 2 else 1+10  retorna 2 *)
+avaliaExp(
+    IfThenElse("if", ExpBinaria(Valor(ValorBooleano(true)), "Or", Valor(ValorBooleano(false))),
+        Valor(ValorInteiro(2)),
+        ExpBinaria(Valor(ValorInteiro(1)), "+", Valor(ValorInteiro(10)))
+    )
+) = Valor(ValorInteiro(2));
+
+(* if (true && true) 1+10 else 1  retorna 11 *)
+avaliaExp(
+    IfThenElse("if", ExpBinaria(Valor(ValorBooleano(true)), "Or", Valor(ValorBooleano(false))),
+        ExpBinaria(Valor(ValorInteiro(1)), "+", Valor(ValorInteiro(10))),
+        Valor(ValorInteiro(2))
+    )
+) = Valor(ValorInteiro(11));
+
