@@ -36,6 +36,7 @@ fun apriori(VInt v) = VInt(v)
     (print ("AExp(VInt "^Int.toString(v1)^" \"-\" VInt "^Int.toString(v2)^")\n"); VInt(v1 - v2))
   
   | apriori(AExp(e1, operacao, e2)) = apriori(AExp(apriori(e1), operacao, apriori(e2)))
+  
   | apriori(If("if", bexp, exp1, exp2 )) = if apriori(bexp) = VBool true then apriori(exp1)
                                                                          else apriori(exp2)
   | apriori(any) = raise Indefinido;
@@ -65,10 +66,12 @@ apriori(BExp(VInt 1, "==", VInt 2)) = VBool(false);
 apriori(BExp(VInt 2, "==", VInt 2)) = VBool(true);
 
 (*  if then else *)
-(*apriori(If("if", VBool true, VInt 100, VInt 200)) = VInt 100;
+apriori(If("if", VBool true, VInt 100, VInt 200)) = VInt 100;
 apriori(If("if", VBool false, VInt 100, VInt 200)) = VInt 200;
+apriori(If("if", BExp(VBool true, "Or", VBool false), VInt 100, VInt 200)) = VInt 100;
+apriori(If("if", BExp(VBool true, "Or", VBool false), AExp(VInt 50, "+", VInt 50), VInt 200)) = VInt 100;
 
-Fun(("fun"), [Id "x", Id "y"], AExp (Id "x", "+", Id "y"), [VInt 2, VInt 3]);*)
+Fun(("fun"), [Id "x", Id "y"], AExp (Id "x", "+", Id "y"), [VInt 2, VInt 3]);
 
 
 
