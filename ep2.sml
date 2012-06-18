@@ -6,7 +6,8 @@ datatype Expression =
 	| Id of string
 	| AExp of Expression * string * Expression
 	| BExp of Expression * string * Expression
-	| If of string * Expression * Expression * Expression;
+	| If of string * Expression * Expression * Expression
+	| Fun of string * Expression list * Expression * Expression list;
 
 	
 fun apriori(VInt v) = VInt(v)
@@ -50,6 +51,8 @@ apriori(BExp(VInt 2, "==", VInt 2)) = VBool(true);
 (*  if then else *)
 apriori(If("if", VBool true, VInt 100, VInt 200)) = VInt 100;
 apriori(If("if", VBool false, VInt 100, VInt 200)) = VInt 200;
+
+Fun(("fun"), [Id "x", Id "y"], AExp (Id "x", "+", Id "y"), [VInt 2, VInt 3]);
 
 
 
