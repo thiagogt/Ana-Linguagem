@@ -14,13 +14,18 @@ fun apriori(VInt v) = VInt(v)
   | apriori(BExp(VBool b1, "==", VBool b2)) = VBool(b1 = b2)
   | apriori(BExp(VInt v1, "==", VInt v2)) = VBool(v1 = v2)
   | apriori(AExp(VInt v1, "+", VInt v2)) = VInt(v1 + v2)
-  | apriori(AExp(VInt v1, "-", VInt v2)) = VInt(v1 - v2);
+  | apriori(AExp(e1, "+", e2)) = apriori(AExp(apriori(e1), "+", apriori(e2)))
+  | apriori(AExp(VInt v1, "-", VInt v2)) = VInt(v1 - v2)
+  | apriori(AExp(e1, "-", e2)) = apriori(AExp(apriori(e1), "-", apriori(e2)));
+(*   | apriori(If("if", bexp, exp1, exp2 )) = if apriori( *)
   
 
 (*******************************************************)
 (******             bateria de testes             ******)
   
 (* operacoes aritmeticas *)
+apriori(AExp(AExp(VInt 1, "+", VInt 3), "+", VInt 6)) = VInt 10;
+apriori(AExp(AExp(VInt 1, "+", VInt 3), "-", VInt 6)) = VInt ~2;
 apriori(AExp(VInt 1, "+", VInt 3)) = VInt(4);
 apriori(AExp(VInt 3, "-", VInt 3)) = VInt(0);
 
