@@ -9,29 +9,31 @@ datatype Expression =
 	| If of string * Expression * Expression * Expression
 	| Fun of string * Expression list * Expression * Expression list;
 
+
+(*(print ("AExp(VInt "^Int.toString(v1)^" \"+\" VInt "^Int.toString(v2)^")\n"); VInt(v1 + v2))*)
 	
 fun apriori(VInt v) = VInt(v)
   | apriori(VBool b) = VBool(b)
   
   | apriori(BExp(VBool b1, "And", VBool b2)) = 
-    (print (Bool.toString(b1)^" and "^Bool.toString(b2)^" = "^Bool.toString(b1 andalso b2)^"\n"); VBool(b1 andalso b2))
+    (print ("BEXP(VBool "^Bool.toString(b1)^" \"And\" VBool "^Bool.toString(b2)^")\n"); VBool(b1 andalso b2))
   
   | apriori(BExp(VBool b1, "Or", VBool b2)) = 
-    (print (Bool.toString(b1)^" or "^Bool.toString(b2)^" = "^Bool.toString(b1 orelse b2)^"\n"); VBool(b1 orelse b2))  
+    (print ("BEXP(VBool "^Bool.toString(b1)^" \"Or\" VBool "^Bool.toString(b2)^")\n"); VBool(b1 orelse b2))  
   
   | apriori(BExp(VBool b1, "==", VBool b2)) = 
-    (print (Bool.toString(b1)^" == "^Bool.toString(b2)^" = "^Bool.toString(b1 = b2)^"\n"); VBool(b1 = b2)) 
+    (print ("BEXP(VBool "^Bool.toString(b1)^" \"==\" VBool "^Bool.toString(b2)^")\n"); VBool(b1 = b2)) 
   
   | apriori(BExp(VInt v1, "==", VInt v2)) = 
-    (print (Int.toString(v1)^" == "^Int.toString(v2)^" = "^Bool.toString(v1 = v2)^"\n"); VBool(v1 = v2))
+    (print ("BEXP(VInt "^Int.toString(v1)^" \"==\" VInt "^Int.toString(v2)^")\n"); VBool(v1 = v2))
       
   | apriori(BExp(e1, operacao, e2)) = apriori(BExp(apriori(e1), operacao, apriori(e2)))
   
   | apriori(AExp(VInt v1, "+", VInt v2)) = 
-    (print (Int.toString(v1)^" + "^Int.toString(v2)^" = "^Int.toString(v1 + v2)^"\n"); VInt(v1 + v2))
+    (print ("AExp(VInt "^Int.toString(v1)^" \"+\" VInt "^Int.toString(v2)^")\n"); VInt(v1 + v2))
   
   | apriori(AExp(VInt v1, "-", VInt v2)) =
-    (print (Int.toString(v1)^" - "^Int.toString(v2)^" = "^Int.toString(v1 - v2)^"\n"); VInt(v1 - v2))
+    (print ("AExp(VInt "^Int.toString(v1)^" \"-\" VInt "^Int.toString(v2)^")\n"); VInt(v1 - v2))
   
   | apriori(AExp(e1, operacao, e2)) = apriori(AExp(apriori(e1), operacao, apriori(e2)))
   | apriori(If("if", bexp, exp1, exp2 )) = if apriori(bexp) = VBool true then apriori(exp1)
@@ -63,13 +65,10 @@ apriori(BExp(VInt 1, "==", VInt 2)) = VBool(false);
 apriori(BExp(VInt 2, "==", VInt 2)) = VBool(true);
 
 (*  if then else *)
-apriori(If("if", VBool true, VInt 100, VInt 200)) = VInt 100;
+(*apriori(If("if", VBool true, VInt 100, VInt 200)) = VInt 100;
 apriori(If("if", VBool false, VInt 100, VInt 200)) = VInt 200;
 
-Fun(("fun"), [Id "x", Id "y"], AExp (Id "x", "+", Id "y"), [VInt 2, VInt 3]);
-
-Fun(("fun"), [Id "x", Id "y"], AExp (Id "x", "+", Id "y"), [VInt 2, VInt 3]);
-
+Fun(("fun"), [Id "x", Id "y"], AExp (Id "x", "+", Id "y"), [VInt 2, VInt 3]);*)
 
 
 
