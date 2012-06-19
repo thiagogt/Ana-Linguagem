@@ -40,29 +40,39 @@ substitui(Id "x", AExp(AExp(VInt 1, "+", Id "x"), "+", VInt 1), VInt 3) = AExp(A
 substituiBExp(Id "x", BExp(Id "x", "And", VBool true), VBool false) = BExp(VBool false, "And", VBool true);
 
 (*(print ("AExp(VInt "^Int.toString(v1)^" \"+\" VInt "^Int.toString(v2)^")\n"); VInt(v1 + v2))*)
-	
+
+(*******************************************************)
+(******             funcoes auxiliares            ******)
+fun printList ([], _) = print("]\n\n\n")
+    | printList ((x::xs), true) = (print ("["^Int.toString(x)^", "); printList(xs, false))
+    | printList ((x::nil), _) = (print (Int.toString(x)); printList(nil, false))
+    | printList ((x::xs), false) = (print (Int.toString(x)^", "); printList(xs, false));
+
+
+(*******************************************************)
+
 fun apriori(VInt v) = VInt(v)
   | apriori(VBool b) = VBool(b)
   
   | apriori(BExp(VBool b1, "And", VBool b2)) = 
-    (*(print ("BEXP(VBool "^Bool.toString(b1)^" \"And\" VBool "^Bool.toString(b2)^")\n");*) VBool(b1 andalso b2)
+    (print ("BEXP(VBool "^Bool.toString(b1)^" \"And\" VBool "^Bool.toString(b2)^")\n"); VBool(b1 andalso b2))
   
   | apriori(BExp(VBool b1, "Or", VBool b2)) = 
-    (*(print ("BEXP(VBool "^Bool.toString(b1)^" \"Or\" VBool "^Bool.toString(b2)^")\n");*) VBool(b1 orelse b2) 
+    (print ("BEXP(VBool "^Bool.toString(b1)^" \"Or\" VBool "^Bool.toString(b2)^")\n"); VBool(b1 orelse b2))
   
   | apriori(BExp(VBool b1, "==", VBool b2)) = 
-    (*(print ("BEXP(VBool "^Bool.toString(b1)^" \"==\" VBool "^Bool.toString(b2)^")\n");*) VBool(b1 = b2)
+    (print ("BEXP(VBool "^Bool.toString(b1)^" \"==\" VBool "^Bool.toString(b2)^")\n"); VBool(b1 = b2))
   
   | apriori(BExp(VInt v1, "==", VInt v2)) = 
-    (*(print ("BEXP(VInt "^Int.toString(v1)^" \"==\" VInt "^Int.toString(v2)^")\n");*) VBool(v1 = v2)
+    (print ("BEXP(VInt "^Int.toString(v1)^" \"==\" VInt "^Int.toString(v2)^")\n"); VBool(v1 = v2))
       
   | apriori(BExp(e1, operacao, e2)) = apriori(BExp(apriori(e1), operacao, apriori(e2)))
   
   | apriori(AExp(VInt v1, "+", VInt v2)) = 
-    (*(print ("AExp(VInt "^Int.toString(v1)^" \"+\" VInt "^Int.toString(v2)^")\n");*) VInt(v1 + v2)
+    (print ("AExp(VInt "^Int.toString(v1)^" \"+\" VInt "^Int.toString(v2)^")\n"); VInt(v1 + v2))
   
   | apriori(AExp(VInt v1, "-", VInt v2)) =
-    (*(print ("AExp(VInt "^Int.toString(v1)^" \"-\" VInt "^Int.toString(v2)^")\n");*) VInt(v1 - v2)
+    (print ("AExp(VInt "^Int.toString(v1)^" \"-\" VInt "^Int.toString(v2)^")\n"); VInt(v1 - v2))
   
   | apriori(AExp(e1, operacao, e2)) = apriori(AExp(apriori(e1), operacao, apriori(e2)))
   
@@ -70,7 +80,8 @@ fun apriori(VInt v) = VInt(v)
                                                                          else apriori(exp2)
   | apriori(Fun("fun", [], exp, [])) = apriori(exp)
   
-  | apriori(Fun("fun", id::id_list, exp, valor::valor_list)) = apriori(Fun("fun", id_list, substitui(id, exp, valor), valor_list))
+  | apriori(Fun("fun", id::id_list, exp, valor::valor_list)) = 
+    apriori(Fun("fun", id_list, substitui(id, exp, valor), valor_list))
   
   | apriori(any) = raise Indefinido;
   
@@ -107,11 +118,19 @@ apriori(If("if", BExp(VBool true, "Or", VBool false), AExp(VInt 50, "+", VInt 50
 (* funcoes *)
 apriori(Fun("fun", [], AExp (VInt 1, "+", VInt 2), [])) = VInt 3;
 apriori(Fun("fun", [Id "x", Id "y"], AExp (Id "x", "+", Id "y"), [VInt 2, VInt 3])) = VInt 5;
-apriori(Fun(("fun", [Id "x", Id "y"], AExp (AExp (Id "x", "+", Id "y"), "+", VInt 10), [VInt 2, VInt 3]))) = VInt 15;
+apriori(Fun(("fun", [Id "x", Id "y"], AExp (AExp (Id "x", "+", Id "y"), "+", VInt 10), [VInt 2, VInt 3])));
 (* apriori(Fun("fun", [Id "x", Id "y"], BExp (Id "x", "And", Id "y"), [VBool false, VBool true])); *)
 
 (* substituiAExp(Id "x", AExp (AExp (Id "x", "+", Id "y"), "+", VInt 10), VInt 10); *)
 (* apriori(AExp (AExp (VInt 2, "+", VInt 1), "+", VInt 10)); *)
+
+
+
+
+
+
+
+
 
 
 
