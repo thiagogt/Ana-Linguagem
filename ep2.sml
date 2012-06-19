@@ -1,3 +1,11 @@
+(*
+Francisco Sokol NUSP: 6514199
+Geraldo Castro Zampoli NUSP: 652380
+Leonardo Santana Oliveira NUSP: 6431068
+Thiago Gomes Toledo NUSP: 6552362
+Willen José Gomes Coelho Goulart NUSP: 6560883
+*)
+
 exception Indefinido;
 
 datatype Expression =
